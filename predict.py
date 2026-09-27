@@ -16,17 +16,17 @@ def main():
         os.makedirs(test_dir, exist_ok=True)
         return
 
-    test_files = glob.glob(os.path.join(test_dir, "*.*"))
+    test_files = glob.glob(os.path.join(test_dir, "**", "*.wav"), recursive=True)
     if not test_files:
         print("No audio files found in test directory.")
         return
 
     print("Loading models...")
-    wavlm = WavLMExtractor(model_name="microsoft/wavlm-base-plus")
+    wavlm = WavLMExtractor(model_name="microsoft/wavlm-base-plus", device="cpu")
     signal_ext = SignalExtractor()
     meta_ext = MetadataExtractor()
-    whisper_ext = WhisperExtractor(model_name="openai/whisper-tiny")
-    ecapa_ext = ECAPATDNNExtractor()
+    whisper_ext = WhisperExtractor(model_name="openai/whisper-tiny", device="cpu")
+    ecapa_ext = ECAPATDNNExtractor(device="cpu")
     
     # Load ensemble
     try:
@@ -66,7 +66,7 @@ def main():
         combined_feat = np.hstack([w_feat, s_feat, m_feat, wh_feat, ec_feat]).reshape(1, -1)
         
         # Predict probability of being synthetic (Class 1)
-        prob = ensemble.predict_proba(combined_feat)[0][1]
+        prob = ensemble.predict_proba(combined_feat)[0]
         predictions_map[filename] = float(prob)
         
     # Generate TSV

@@ -1,6 +1,7 @@
 import torch
 import torchaudio
 import numpy as np
+import soundfile as sf
 import warnings
 
 # Suppress speechbrain warnings
@@ -47,7 +48,11 @@ class ECAPATDNNExtractor:
             return np.zeros(192)
             
         try:
-            signal, fs = torchaudio.load(audio_path)
+            data, fs = sf.read(audio_path)
+            if len(data.shape) == 1:
+                signal = torch.tensor(data).unsqueeze(0).float()
+            else:
+                signal = torch.tensor(data).transpose(0, 1).float()
             # Embeddings extraction
             with torch.no_grad():
                 embeddings = self.classifier.encode_batch(signal)

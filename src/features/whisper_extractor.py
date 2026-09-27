@@ -1,4 +1,5 @@
 import torch
+import soundfile as sf
 import torchaudio
 from transformers import WhisperFeatureExtractor, WhisperModel
 import numpy as np
@@ -16,7 +17,11 @@ class WhisperExtractor:
         Extracts the mean-pooled last hidden state from Whisper encoder.
         """
         try:
-            waveform, sample_rate = torchaudio.load(audio_path)
+            data, fs = sf.read(audio_path)
+            if len(data.shape) > 1:
+                data = data[:, 0]
+            waveform = torch.tensor(data).unsqueeze(0).float()
+            sample_rate = fs
             
             # Whisper expects 16kHz
             if sample_rate != 16000:
