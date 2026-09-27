@@ -1,0 +1,12 @@
+torch
+torchaudio
+torchvision
+librosa
+scipy
+pandas
+numpy
+scikit-learn
+transformers
+xgboost
+soundfile
+speechbrain
